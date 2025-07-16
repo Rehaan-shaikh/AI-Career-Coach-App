@@ -22,7 +22,7 @@ export async function generateQuiz() {
   if (!user) throw new Error("User not found");
 
   const prompt = `
-    Generate 3 technical interview questions for a ${
+    Generate 10 technical interview questions for a ${
       user.industry
     } professional${
     user.skills?.length ? ` with expertise in ${user.skills.join(", ")}` : ""
@@ -49,7 +49,6 @@ export async function generateQuiz() {
     const text = response.text();
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
     const quiz = JSON.parse(cleanedText);
-
     return quiz.questions;
   } catch (error) {
     console.error("Error generating quiz:", error);
@@ -83,9 +82,7 @@ export async function saveQuizResult(questions, answers, score) {
   // Only generate improvement tips if there are wrong answers
   let improvementTip = null;
   if (wrongAnswers.length > 0) {
-    const wrongQuestionsText = wrongAnswers
-      .map(
-        (q) =>
+    const wrongQuestionsText = wrongAnswers.map((q) =>
           `Question: "${q.question}"\nCorrect Answer: "${q.answer}"\nUser Answer: "${q.userAnswer}"`
       )
       .join("\n\n"); //joining formatted question strings with a blank line between each one — to give clear visual separation in the prompt sent to the AI.
@@ -105,7 +102,7 @@ export async function saveQuizResult(questions, answers, score) {
       const tipResult = await model.generateContent(improvementPrompt);
 
       improvementTip = tipResult.response.text().trim();
-      console.log(improvementTip);
+      // console.log(improvementTip);
     } catch (error) {
       console.error("Error generating improvement tip:", error);
       // Continue without improvement tip if generation fails

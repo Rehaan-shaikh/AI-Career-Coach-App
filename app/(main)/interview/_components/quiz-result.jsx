@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 
 export default function QuizResult({
   result,
-  hideStartNew = false,
+  hideStartNew = false,   // cause we are using same component for showing result in dialogue and this handles it yo show onStartr btn or not
   onStartNew,
 }) {
   if (!result) return null;
@@ -41,7 +41,7 @@ export default function QuizResult({
           <h3 className="font-medium">Question Review</h3>
           {result.questions.map((q, index) => (
             <div key={index} className="border rounded-lg p-4 space-y-2">
-              <div className="flex items-start justify-between gap-2">
+              <div className="flexdiv items-start justify-between gap-2">
                 <p className="font-medium">{q.question}</p>
                 {q.isCorrect ? (
                   <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />

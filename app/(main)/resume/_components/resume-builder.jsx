@@ -21,7 +21,10 @@ import useFetch from "@/hooks/use-fetch";
 import { resumeSchema } from "@/app/lib/schema";
 import { EntryForm } from "./entry-form";
 import MDEditor from "@uiw/react-md-editor";
-import html2pdf from "html2pdf.js/dist/html2pdf.min.js";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { marked } from "marked";
+
 
 
 export default function ResumeBuilder({ initialContent }) {
@@ -70,8 +73,7 @@ export default function ResumeBuilder({ initialContent }) {
       const newContent = getCombinedContent();
       setPreviewContent(newContent ? newContent : initialContent);
     }
-    console.log(previewContent);
-    
+    // console.log(previewContent);
   }, [formValues, activeTab]);
 
   // Handle save result
@@ -91,18 +93,17 @@ export default function ResumeBuilder({ initialContent }) {
     const parts = [];
     if (contactInfo.email) parts.push(`📧 ${contactInfo.email}`);
     if (contactInfo.mobile) parts.push(`📱 ${contactInfo.mobile}`);
-    if (contactInfo.linkedin)
-      parts.push(`💼 [LinkedIn](${contactInfo.linkedin})`);
+    if (contactInfo.linkedin) parts.push(`💼 [LinkedIn](${contactInfo.linkedin})`);
     if (contactInfo.twitter) parts.push(`🐦 [Twitter](${contactInfo.twitter})`);
 
     return parts.length > 0
       ? `## <div align="center">${contactInfo.name}</div>
-        \n\n<div align="center">\n\n${parts.join(" | ")}\n\n</div>`
+        \n\n<div align="center">\n\n${parts.join(" | ")}\n\n</div>`  //joins all element of parts with |
       : "";
   };
 
  function entriesToMarkdown(entries, type) {
-  console.log(entries);
+  // console.log(entries);  //entries is an arrat of obj with 1 length only so we can use map top render the obj elements
   
   if (!entries?.length) return "";
 
@@ -135,25 +136,55 @@ export default function ResumeBuilder({ initialContent }) {
       .join("\n\n");
   };
 
-  const generatePDF = async () => {
-    setIsGenerating(true);
-    try {
-      const element = document.getElementById("resume-pdf");
-      const opt = {
-        margin: [15, 15],
-        filename: "resume.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      };
+  //with help of gpt , cause the previous html2pdf was throwing errors
+const generatePDF = async () => {
+  setIsGenerating(true);
 
-      await html2pdf().set(opt).from(element).save();
-    } catch (error) {
-      console.error("PDF generation error:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  try {
+    // Open a blank window based on your HTML template
+    const printWindow = window.open("/resume-print.html", "_blank");
+
+    if (!printWindow) throw new Error("Unable to open print window");
+
+    // Wait until the window is ready
+    await new Promise((res) => {
+      printWindow.onload = res;
+    });
+
+    // Render your markdown into HTML
+    const html = marked.parse(previewContent || "");
+
+    // Inject the content
+    printWindow.document.getElementById("resume-html").innerHTML = html;
+
+    // Wait a bit to ensure DOM is fully painted
+    await new Promise((res) => setTimeout(res, 500));
+
+    // Use html2canvas on the new window's document
+    const element = printWindow.document.body;
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("resume.pdf");
+
+    printWindow.close();
+  } catch (error) {
+    console.error("PDF generation error:", error);
+  } finally {
+    setIsGenerating(false);
+  }
+};
 
   const onSubmit = async () => {
     try {
@@ -210,12 +241,13 @@ export default function ResumeBuilder({ initialContent }) {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>   {/*  the updated value gets automatically passed to SetActiveTab*/}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        {" "}
+        {/*  the updated value gets automatically passed to SetActiveTab*/}
         <TabsList>
           <TabsTrigger value="edit">Form</TabsTrigger>
           <TabsTrigger value="preview">Markdown</TabsTrigger>
         </TabsList>
-
         <TabsContent value="edit">
           <form
             // onSubmit={handleSubmit(onSubmit)} //cause we are adding data on save btn
@@ -326,21 +358,21 @@ export default function ResumeBuilder({ initialContent }) {
             {/* Experience */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Work Experience</h3>
-              <Controller  
-              //Controller is a component provided by React Hook Form to work with custom or controlled components to integrate with the parent components form.
-              //It allows you to:
-              //Use components that manage their own internal state (like <EntryForm />)
-              //Still integrate them with react-hook-form for validation and submission
-              name="experience"
-                control={control}  //It’s the object that manages the internal state and validation of all your form fields
+              <Controller
+                //Controller is a component provided by React Hook Form to work with custom or controlled components to integrate with the parent components form.
+                //It allows you to:
+                //Use components that manage their own internal state (like <EntryForm />)
+                //Still integrate them with react-hook-form for validation and submission
+                name="experience"
+                control={control} //It’s the object that manages the internal state and validation of all your form fields
                 render={({ field }) => (
-              // Controller gives you the field object, which contains:
-              // field.value – the current value of that field
-              // field.onChange – a function to update the field when it changes
+                  // Controller gives you the field object, which contains:
+                  // field.value – the current value of that field
+                  // field.onChange – a function to update the field when it changes
                   <EntryForm
                     type="Experience"
-                    entries={field.value}  //	The current value of the experience field (an array of entries) passed into EntryForm
-                    onChange={field.onChange}  //	The function that updates the experience field in the form state when something changes
+                    entries={field.value} //	The current value of the experience field (an array of entries) passed into EntryForm
+                    onChange={field.onChange} //	The function that updates the experience field in the form state when something changes
                   />
                 )}
               />
@@ -394,7 +426,7 @@ export default function ResumeBuilder({ initialContent }) {
             </div>
           </form>
         </TabsContent>
-
+        
         <TabsContent value="preview">
           {activeTab === "preview" && (
             <Button
@@ -405,7 +437,7 @@ export default function ResumeBuilder({ initialContent }) {
                 setResumeMode(resumeMode === "preview" ? "edit" : "preview")
               }
             >
-              {resumeMode === "preview" ? (
+              {resumeMode === "preview" ? (  //in ternary operator wrap it with () if rendering html elements
                 <>
                   <Edit className="h-4 w-4" />
                   Edit Resume
@@ -419,7 +451,7 @@ export default function ResumeBuilder({ initialContent }) {
             </Button>
           )}
 
-          {activeTab === "preview" && resumeMode !== "preview" && (
+          {activeTab === "preview" && resumeMode == "edit" && (
             <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
               <AlertTriangle className="h-5 w-5" />
               <span className="text-sm">
@@ -428,6 +460,7 @@ export default function ResumeBuilder({ initialContent }) {
             </div>
           )}
           <div className="border rounded-lg">
+
             <MDEditor
               value={previewContent}
               onChange={setPreviewContent}
@@ -435,16 +468,20 @@ export default function ResumeBuilder({ initialContent }) {
               preview={resumeMode}
             />
           </div>
-          <div className="hidden">
-            <div id="resume-pdf">
-              <MDEditor.Markdown
-                source={previewContent}
-                style={{
-                  background: "white",
-                  color: "black",
-                }}
-              />
-            </div>
+          
+          {/* for downloading form as pdf */}
+          <div style={{ display: "none" }}>
+            <div
+              id="resume-html2pdf"
+              style={{
+                padding: "20px",
+                backgroundColor: "#ffffff",
+                color: "#000000",
+                fontFamily: "Arial, sans-serif",
+                width: "210mm", // A4 width
+              }}
+             dangerouslySetInnerHTML={{ __html: marked.parse(previewContent || "") }}
+            />
           </div>
         </TabsContent>
       </Tabs>

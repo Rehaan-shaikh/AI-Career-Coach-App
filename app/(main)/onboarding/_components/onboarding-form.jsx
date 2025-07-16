@@ -127,10 +127,10 @@ const OnboardingForm = ({ industries }) => {
               )}
             </div>
 
-            {watchIndustry && (
+            {watchIndustry && (  //ie if Industry has value means it is selected
               <div className="space-y-2">
                 {/* ✅ Use register() for standard/native inputs (input, textarea, select) */}
-                {/* ✅ Use setValue() for custom components (like @radix-ui/react-select or third-party components) */}
+                {/* ✅ Use setValue() for custom components (like @radix-ui/react-select [select uses radix ui]or third-party components) */}
                 <Label htmlFor="subIndustry">Specialization</Label>
                 <Select
                   onValueChange={(value) => setValue("subIndustry", value)}

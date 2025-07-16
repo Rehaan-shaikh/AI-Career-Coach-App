@@ -46,9 +46,9 @@ export default async function Header() {
                 <LayoutDashboard className="h-4 w-4" />
                 Industry Insights
               </Button>
-              <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
+              {/* <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
                 <LayoutDashboard className="h-4 w-4" />
-              </Button>
+              </Button> */}
             </Link>
 
             {/* Growth Tools Dropdown */}
@@ -94,14 +94,14 @@ export default async function Header() {
 
           <SignedIn>
             <UserButton
-              appearance={{
+              appearance={{  //customizing User btn from clerk
                 elements: {
                   avatarBox: "w-10 h-10",
                   userButtonPopoverCard: "shadow-xl",
                   userPreviewMainIdentifier: "font-semibold",
                 },
               }}
-              afterSignOutUrl="/"
+              signOutUrl="/"
             />
           </SignedIn>
         </div>

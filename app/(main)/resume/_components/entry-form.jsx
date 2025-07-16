@@ -67,7 +67,7 @@ export function EntryForm({ type, entries, onChange }) {
   });
 
   const handleDelete = () => {
-    console.log(entries , "from delete");
+    // console.log(entries , "from delete");
     
     const newEntries = entries.filter((_, i) => i !== 0);
     console.log(newEntries);

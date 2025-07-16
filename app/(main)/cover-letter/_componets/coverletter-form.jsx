@@ -23,8 +23,12 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const CoverLetterForm = () => {
+
+  const router = useRouter();
+
   const {
     register,
+    reset,
     handleSubmit,
     watch,
     formState: { errors },
@@ -33,6 +37,16 @@ const CoverLetterForm = () => {
   });
 
   const { data: coverData, loading: generating, fn: Generatefn } = useFetch(generateCoverLetter);
+
+
+  useEffect(()=>{
+    if(coverData){
+      toast.success("Cover Letter Created")
+      router.push(`/cover-letter/${coverData.id}`)
+      reset();
+    }
+  } , [coverData])
+
 
   const onSubmit = handleSubmit((data) => {
     // console.log(data);

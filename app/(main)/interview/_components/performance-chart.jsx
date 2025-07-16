@@ -18,7 +18,7 @@ const PerformanceChart = ({assessments}) => {
       }));
       setChartData(formattedData);
     }
-  }, [assessments]);
+  }, [assessments]); //assesment data gets changed whenver new quiz is added 
   
   return (
     <div>

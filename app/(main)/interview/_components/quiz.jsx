@@ -32,7 +32,7 @@ export default function Quiz() {
   const {
     loading: savingResult,
     fn: saveQuizResultFn,
-    data: resultData,   //Holds this data : quizScore: score, questions: questionResults, category: "Technical", improvementTip
+    data: resultData,   //It Holds this data : quizScore: score, questions: questionResults, category: "Technical", improvementTip
     setData: setResultData,
   } = useFetch(saveQuizResult);
 
@@ -81,7 +81,7 @@ export default function Quiz() {
     setCurrentQuestion(0);
     setAnswers([]);
     setShowExplanation(false);
-    generateQuizFn();
+    generateQuizFn();  //to fetch new que
     setResultData(null);
   };
 

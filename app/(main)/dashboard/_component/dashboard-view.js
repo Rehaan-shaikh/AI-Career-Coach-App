@@ -30,6 +30,8 @@ import { Progress } from "@/components/ui/progress";
 
 const DashboardView = ({ insights }) => {
   // Transform salary data for the chart
+  // console.log(insights);
+  
   const salaryData = insights.salaryRanges.map((range) => ({
     name: range.role,
     min: range.min / 1000,
@@ -163,7 +165,7 @@ const DashboardView = ({ insights }) => {
                     if (active && payload && payload.length) {
                       return (
                         <div className="bg-background border rounded-lg p-2 shadow-md">
-                          <p className="font-medium">{label}</p>  {/* namE */}
+                          <p className="font-medium">{label}</p>  {/* name */}
                           {payload.map((item) => (
                             <p key={item.name} className="text-sm">
                               {item.name}: ${item.value}K
