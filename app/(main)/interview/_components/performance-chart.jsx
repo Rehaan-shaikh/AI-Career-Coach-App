@@ -7,16 +7,16 @@ import { format } from 'date-fns';
 
 
 const PerformanceChart = ({assessments}) => {
-  // console.log(assessments);
+  console.log(assessments);
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     if (assessments) {
       const formattedData = assessments.map((assessment) => ({
-        date: format(new Date(assessment.createdAt), "MMM dd"),
-        score: assessment.quizScore,
-      }));
-      setChartData(formattedData);
+      date: format(new Date(assessment.createdAt), "MMM dd HH:mm"),
+      score: assessment.quizScore,
+    }));
+    setChartData(formattedData);
     }
   }, [assessments]); //assesment data gets changed whenver new quiz is added 
   
