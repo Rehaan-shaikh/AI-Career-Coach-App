@@ -1,31 +1,29 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getCurrentUser } from "./auth"; // 👈 custom user getter
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export async function generateQuiz() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await getCurrentUser(); 
+  if (!user) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+  const fullUser = await db.user.findUnique({
+    where: { id: user.id },
     select: {
       industry: true,
       skills: true,
     },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!fullUser) throw new Error("User not found");
 
   const prompt = `
-    Generate 10 technical interview questions for a ${
-      user.industry
-    } professional${
-    user.skills?.length ? ` with expertise in ${user.skills.join(", ")}` : ""
+    Generate 10 technical interview questions for a ${fullUser.industry} professional${
+    fullUser.skills?.length ? ` with expertise in ${fullUser.skills.join(", ")}` : ""
   }.
     
     Each question should be multiple choice with 4 options.
@@ -56,16 +54,15 @@ export async function generateQuiz() {
   }
 }
 
-
 export async function saveQuizResult(questions, answers, score) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await getCurrentUser(); 
+  if (!user) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+  const fullUser = await db.user.findUnique({
+    where: { id: user.id },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!fullUser) throw new Error("User not found");
 
   //questions is obj with "question, options, correctAnswer, explanation" keys along with thier values
   const questionResults = questions.map((q, index) => ({
@@ -83,12 +80,11 @@ export async function saveQuizResult(questions, answers, score) {
   let improvementTip = null;
   if (wrongAnswers.length > 0) {
     const wrongQuestionsText = wrongAnswers.map((q) =>
-          `Question: "${q.question}"\nCorrect Answer: "${q.answer}"\nUser Answer: "${q.userAnswer}"`
-      )
-      .join("\n\n"); //joining formatted question strings with a blank line between each one — to give clear visual separation in the prompt sent to the AI.
+      `Question: "${q.question}"\nCorrect Answer: "${q.answer}"\nUser Answer: "${q.userAnswer}"`
+    ).join("\n\n");
 
     const improvementPrompt = `
-      The user got the following ${user.industry} technical interview questions wrong:
+      The user got the following ${fullUser.industry} technical interview questions wrong:
 
       ${wrongQuestionsText}
 
@@ -100,9 +96,7 @@ export async function saveQuizResult(questions, answers, score) {
 
     try {
       const tipResult = await model.generateContent(improvementPrompt);
-
       improvementTip = tipResult.response.text().trim();
-      // console.log(improvementTip);
     } catch (error) {
       console.error("Error generating improvement tip:", error);
       // Continue without improvement tip if generation fails
@@ -112,7 +106,7 @@ export async function saveQuizResult(questions, answers, score) {
   try {
     const assessment = await db.assessment.create({
       data: {
-        userId: user.id,
+        userId: fullUser.id,
         quizScore: score,
         questions: questionResults,
         category: "Technical",   //by default
@@ -127,21 +121,20 @@ export async function saveQuizResult(questions, answers, score) {
   }
 }
 
-
 export async function getAssessments() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await getCurrentUser(); 
+  if (!user) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+  const fullUser = await db.user.findUnique({
+    where: { id: user.id },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!fullUser) throw new Error("User not found");
 
   try {
     const assessments = await db.assessment.findMany({
       where: {
-        userId: user.id,
+        userId: fullUser.id,
       },
       orderBy: {
         createdAt: "asc",

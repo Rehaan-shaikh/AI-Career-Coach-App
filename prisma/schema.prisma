@@ -8,26 +8,27 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  clerkUserId   String    @unique // clerk user id
-  email         String    @unique
-  name          String?
-  imageUrl      String?
-  industry      String?    // Combined industry-subindustry (e.g., "tech-software-development")
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password        String    // 🔐 hashed password
+  name            String?
+  imageUrl        String?
+  industry        String?    
   industryInsight IndustryInsight? @relation(fields: [industry], references: [industry])
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Profile fields
-  bio           String?
-  experience    Int?      // Years of experience
-  skills        String[]  // Array of skills
-  
+  bio             String?
+  experience      Int?
+  skills          String[]
+
   // Relations
-  assessments   Assessment[]
-  resume        Resume?        //[1 to 1 optional relationship] can have 0 or 1 resume
-  coverLetter   CoverLetter[]
+  assessments     Assessment[]
+  resume          Resume?
+  coverLetter     CoverLetter[]
 }
+
 
 model Assessment {
   id            String    @id @default(cuid())

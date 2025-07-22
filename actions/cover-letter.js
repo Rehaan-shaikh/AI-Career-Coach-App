@@ -1,36 +1,33 @@
 'use server'
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getCurrentUser } from "./auth";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export async function generateCoverLetter(data) {
-     const { userId } = await auth();
-      if (!userId) throw new Error("Unauthorized");
-    
-      const user = await db.user.findUnique({
-        where: { clerkUserId: userId },
-        include : {
-            industryInsight : true
-        }
-      });
-    
-      if (!user) throw new Error("User not found");
+  const user = await getCurrentUser(); // 🔁 replaced auth
+  if (!user) throw new Error("Unauthorized");
 
+  const fullUser = await db.user.findUnique({
+    where: { id: user.id },
+    include: {
+      industryInsight: true
+    }
+  });
+
+  if (!fullUser) throw new Error("User not found");
 
   const prompt = `
-    Write a professional cover letter for a ${data.jobTitle} position at ${
-    data.companyName
-  }.
+    Write a professional cover letter for a ${data.jobTitle} position at ${data.companyName}.
     
     About the candidate:
-    - Industry: ${user.industry}
-    - Years of Experience: ${user.experience}
-    - Skills: ${user.skills?.join(", ")}
-    - Professional Background: ${user.bio}
+    - Industry: ${fullUser.industry}
+    - Years of Experience: ${fullUser.experience}
+    - Skills: ${fullUser.skills?.join(", ")}
+    - Professional Background: ${fullUser.bio}
     
     Job Description:
     ${data.jobDescription}
@@ -47,20 +44,20 @@ export async function generateCoverLetter(data) {
     Format the letter in markdown.
   `;
 
-  try{
+  try {
     const result = await model.generateContent(prompt);
     const content = result.response.text().trim();
 
-    const coverLetter = await db.CoverLetter.create ({
-      data :{
-        userId : user.id,
+    const coverLetter = await db.coverLetter.create({
+      data: {
+        userId: fullUser.id,
         content,
         jobDescription: data.jobDescription,
-        companyName :data.companyName ,
-        jobTitle : data.jobTitle,
-        status : 'completed'
+        companyName: data.companyName,
+        jobTitle: data.jobTitle,
+        status: 'completed'
       }
-    })
+    });
     // console.log(coverLetter);
     return coverLetter;
   } catch (error) {
@@ -69,16 +66,9 @@ export async function generateCoverLetter(data) {
   }
 }
 
-
 export async function getCoverLetters() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await getCurrentUser(); // 🔁 replaced auth
+  if (!user) throw new Error("Unauthorized");
 
   return await db.coverLetter.findMany({
     where: {
@@ -90,41 +80,28 @@ export async function getCoverLetters() {
   });
 }
 
-
 export async function deleteCoverLetter(id) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await getCurrentUser(); // 🔁 replaced auth
+  if (!user) throw new Error("Unauthorized");
 
   const deleted = await db.coverLetter.delete({
-    where :{
+    where: {
       id,
-      userId : user.id
+      userId: user.id
     }
-  })
-    return deleted;
+  });
+  return deleted;
 }
 
 export async function getCoverLetter(id) {
-    const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await getCurrentUser(); // 🔁 replaced auth
+  if (!user) throw new Error("Unauthorized");
 
   const letter = await db.coverLetter.findUnique({
-    where : {
+    where: {
       id,
-      userId : user.id
+      userId: user.id
     }
-  })
+  });
   return letter;
 }

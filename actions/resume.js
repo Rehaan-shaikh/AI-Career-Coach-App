@@ -1,22 +1,16 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "./auth"; // ✅ your custom auth
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export async function saveResume(content) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await getCurrentUser();
+  if (!user) throw new Error("Unauthorized");
 
   try {
     const resume = await db.resume.upsert({  //it updates the fiel if exist otherwise creates it
@@ -41,14 +35,8 @@ export async function saveResume(content) {
 }
 
 export async function getResume() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await getCurrentUser();
+  if (!user) throw new Error("Unauthorized");
 
   return await db.resume.findUnique({
     where: {
@@ -57,21 +45,21 @@ export async function getResume() {
   });
 }
 
-export async function improveWithAI({ current, type }) {  //the type reffers to type of content u are improving ie. experience / skills / summery
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+export async function improveWithAI({ current, type }) {  //the type reffers to type of content u are improving ie. experience / skills / summery
+  const user = await getCurrentUser();
+
+  const userData = await db.user.findUnique({
+    where: { id: user.id },
     include: {
       industryInsight: true,
     },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!userData) throw new Error("User not found");
 
   const prompt = `
-    As an expert resume writer, improve the following ${type} description for a ${user.industry} professional.
+    As an expert resume writer, improve the following ${type} description for a ${userData.industry} professional.
     Make it more impactful, quantifiable, and aligned with industry standards.
     Current content: "${current}"
 
@@ -82,7 +70,7 @@ export async function improveWithAI({ current, type }) {  //the type reffers to 
     4. Keep it concise but detailed
     5. Focus on achievements over responsibilities
     6. Use industry-specific keywords
-    
+
     Format the response as a single paragraph without any additional text or explanations.
   `;
 

@@ -6,6 +6,10 @@ import CoverLetterListing from "./_componets/cover-letter-listing";
 
 export default async function CoverLetterPage() {
   const coverLetters = await getCoverLetters();
+  
+  if (!coverLetters ) {
+    return <p className="text-center py-10 text-muted">Please log in to view your cover letters.</p>;
+  }
 
   return (
     <div>
