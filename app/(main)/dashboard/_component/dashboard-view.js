@@ -154,6 +154,7 @@ const DashboardView = ({ insights }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%"> 
               <BarChart data={salaryData}>
@@ -182,6 +183,7 @@ const DashboardView = ({ insights }) => {
                 <Bar dataKey="max" fill="#475569" name="Max Salary (K)" />
               </BarChart>
             </ResponsiveContainer>
+            
           </div>
         </CardContent>
       </Card>

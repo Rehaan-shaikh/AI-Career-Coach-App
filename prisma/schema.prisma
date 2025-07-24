@@ -25,6 +25,7 @@ model User {
 
   // Relations
   assessments     Assessment[]
+  mockInterviews  MockInterview[]
   resume          Resume?
   coverLetter     CoverLetter[]
 }
@@ -101,3 +102,20 @@ model IndustryInsight {
 
   @@index([industry])
 }
+
+model MockInterview {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  Questions       Json[]
+  improvementData String?
+  role            String     // ✅ add this
+  type            String     // ✅ add this
+  level           String     // ✅ add this
+  techstack       String[]   // ✅ add this
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+}
+

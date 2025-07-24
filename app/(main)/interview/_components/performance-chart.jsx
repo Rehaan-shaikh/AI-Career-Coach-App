@@ -11,7 +11,7 @@ const PerformanceChart = ({assessments}) => {
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-    if (assessments) {
+    if (assessments) {  
       const formattedData = assessments.map((assessment) => ({
       date: format(new Date(assessment.createdAt), "MMM dd HH:mm"),
       score: assessment.quizScore,
