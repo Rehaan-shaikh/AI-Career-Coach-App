@@ -63,7 +63,13 @@ export default async function Header() {
                   <DropdownMenuItem asChild>
                     <Link href="/interview" className="flex items-center gap-2">
                       <GraduationCap className="h-4 w-4" />
-                      Interview Prep
+                      Interview Test
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/mock" className="flex items-center gap-2">
+                      <GraduationCap className="h-4 w-4" />
+                      Mock Interview
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
