@@ -1,11 +1,19 @@
-import React from 'react'
+import Agent from "../_components/agent";
 
-const MockInterviewPage = () => {
+const InterviewPage = async () => {
   return (
-    <div>
-      Mock interview page content goes here.
+    <div className="space-y-8 px-6 py-4">
+<h1 className="text-4xl md:text-5xl font-bold gradient-title text-center">
+  Interview Generation
+</h1>
+      <Agent
+        // userName={user?.name!}
+        // userId={user?.id}
+        // profileImage={user?.profileURL}
+        // type="generate"
+      />
     </div>
-  )
-}
+  );
+};
 
-export default MockInterviewPage
+export default InterviewPage;
