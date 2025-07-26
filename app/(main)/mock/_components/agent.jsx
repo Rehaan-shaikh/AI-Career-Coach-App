@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
+import { useEffect, useState } from "react";
+import { vapi } from "@/app/lib/vapi.sdk";
 
 // import { vapi } from "@/lib/vapi.sdk";
 // import { interviewer } from "@/constants";
@@ -18,118 +20,125 @@ const CallStatus = {
 };
 
 const Agent = ({
-  //   userName,
-  //   userId,
-  //   interviewId,
-  //   feedbackId,
-  //   type,
-  //   questions,
+    // userName,
+    // userId,
+    // interviewId,
+    // feedbackId,
+    // type,
+    // questions,
 }) => {
   const userName = "John Doe";
   const userId = "12345";
-  const interviewId = "67890";
-  const feedbackId = "abcde";
+  // const interviewId = "67890";
+  // const feedbackId = "abcde";
   const type = "technical";
-  const questions = ["What is your greatest strength?", "How do you handle stress?"];
+  // const questions = ["What is your greatest strength?", "How do you handle stress?"];
+  console.log(userName, userId, type);
 
-  const messages = [
-    "Hello, how can I assist you today?",
-    "I am here to help you prepare for your interview.",
-  ];
-  const lastMessage = messages[messages.length - 1];
-  const router = useRouter();
-  const isSpeaking = true;
-  const callStatus = CallStatus.INACTIVE;
+  // const messages = [
+  //   "Hello, how can I assist you today?",
+  //   "I am here to help you prepare for your interview.",
+  // ];
+  // const lastMessage = messages[messages.length - 1];
+  // const router = useRouter();
+  // const isSpeaking = true;
+  // const callStatus = CallStatus.INACTIVE;
 
-  //   const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
-  //   const [messages, setMessages] = useState([]);
-  //   const [isSpeaking, setIsSpeaking] = useState(false);
-  //   const [lastMessage, setLastMessage] = useState("");
+    const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
+    const [messages, setMessages] = useState([]);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [lastMessage, setLastMessage] = useState("");
 
-  //   useEffect(() => {
-  //     const onCallStart = () => setCallStatus(CallStatus.ACTIVE);
-  //     const onCallEnd = () => setCallStatus(CallStatus.FINISHED);
+    useEffect(() => {
+      const onCallStart = () => setCallStatus(CallStatus.ACTIVE);
+      const onCallEnd = () => setCallStatus(CallStatus.FINISHED);
 
-  //     const onMessage = (message) => {
-  //       if (message.type === "transcript" && message.transcriptType === "final") {
-  //         const newMessage = { role: message.role, content: message.transcript };
-  //         setMessages((prev) => [...prev, newMessage]);
-  //       }
-  //     };
+      const onMessage = (message) => {
+        console.log("Received message:", message);
+        
+        if (message.type === "transcript" && message.transcriptType === "final") {
+          const newMessage = { role: message.role, content: message.transcript };
+          setMessages((prev) => [...prev, newMessage]);
+          // console.log("New message:", newMessage);
+        }
+      };
 
-  //     const onSpeechStart = () => setIsSpeaking(true);
-  //     const onSpeechEnd = () => setIsSpeaking(false);
-  //     const onError = (error) => console.log("Error:", error);
+      const onSpeechStart = () => setIsSpeaking(true);
+      const onSpeechEnd = () => setIsSpeaking(false);
+      const onError = (error) => console.log("Error:", error);
 
-  //     vapi.on("call-start", onCallStart);
-  //     vapi.on("call-end", onCallEnd);
-  //     vapi.on("message", onMessage);
-  //     vapi.on("speech-start", onSpeechStart);
-  //     vapi.on("speech-end", onSpeechEnd);
-  //     vapi.on("error", onError);
+      vapi.on("call-start", onCallStart);
+      vapi.on("call-end", onCallEnd);
+      vapi.on("message", onMessage);
+      vapi.on("speech-start", onSpeechStart);
+      vapi.on("speech-end", onSpeechEnd);
+      vapi.on("error", onError);
 
-  //     return () => {
-  //       vapi.off("call-start", onCallStart);
-  //       vapi.off("call-end", onCallEnd);
-  //       vapi.off("message", onMessage);
-  //       vapi.off("speech-start", onSpeechStart);
-  //       vapi.off("speech-end", onSpeechEnd);
-  //       vapi.off("error", onError);
-  //     };
-  //   }, []);
+      return () => { //on component unmount for cleanup
+        vapi.off("call-start", onCallStart);
+        vapi.off("call-end", onCallEnd);
+        vapi.off("message", onMessage);
+        vapi.off("speech-start", onSpeechStart);
+        vapi.off("speech-end", onSpeechEnd);
+        vapi.off("error", onError);
+      };
+    }, []);
 
-  //   useEffect(() => {
-  //     if (messages.length > 0) {
-  //       setLastMessage(messages[messages.length - 1].content);
-  //     }
+    useEffect(() => {
+      if (messages.length > 0) {
+        setLastMessage(messages[messages.length - 1].content);
+      }
 
-  //     const handleGenerateFeedback = async () => {
-  //       const { success, feedbackId: id } = await createFeedback({
-  //         interviewId,
-  //         userId,
-  //         transcript: messages,
-  //         feedbackId,
-  //       });
+      // const handleGenerateFeedback = async () => {
+      //   const { success, feedbackId: id } = await createFeedback({
+      //     interviewId,
+      //     userId,
+      //     transcript: messages,
+      //     feedbackId,
+      //   });
 
-  //       if (success && id) {
-  //         router.push(`/interview/${interviewId}/feedback`);
-  //       } else {
-  //         router.push("/");
-  //       }
-  //     };
+      //   if (success && id) {
+      //     router.push(`/interview/${interviewId}/feedback`);
+      //   } else {
+      //     router.push("/");
+      //   }
+      // };
 
-  //     if (callStatus === CallStatus.FINISHED) {
-  //       if (type === "generate") {
-  //         router.push("/");
-  //       } else {
-  //         handleGenerateFeedback();
-  //       }
-  //     }
-  //   }, [messages, callStatus]);
+      if (callStatus === CallStatus.FINISHED) {
+        if (type === "generate") {
+          router.push("/");
+        } 
+        // else {
+        //   handleGenerateFeedback();
+        // }
+      }
+    }, [messages, callStatus]);
 
-  //   const handleCall = async () => {
-  //     setCallStatus(CallStatus.CONNECTING);
 
-  //     if (type === "generate") {
-  //       await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID, {
-  //         variableValues: {
-  //           username: userName,
-  //           userid: userId,
-  //         },
-  //       });
-  //     } else {
-  //       const formattedQuestions = questions?.map((q) => `- ${q}`).join("\n") || "";
 
-  //       await vapi.start(interviewer, {
-  //         variableValues: { questions: formattedQuestions },
-  //       });
-  //     }
-  //   };
+  const handleCall = async () => {
+    // console.log("VAPI token:", process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN);  //logging properly
 
-  //   const handleDisconnect = () => {
-  //     setCallStatus(CallStatus.FINISHED);
-  //     vapi.stop();
-  //   };
+  setCallStatus(CallStatus.CONNECTING);
+
+  try {
+    if (type === "generate") {
+      await vapi.start({
+        type: "workflow",
+        id: process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID,
+      });
+    }
+  } catch (err) {
+    console.error("Failed to start Vapi call:", err);
+    setCallStatus(CallStatus.INACTIVE);
+  }
+};
+
+
+    const handleDisconnect = () => {
+      setCallStatus(CallStatus.FINISHED);
+      vapi.stop();
+    };
 
   return (
     <div className="min-h-screen w-full bg-zinc-950 px-4 py-16 flex flex-col items-center">
@@ -185,7 +194,7 @@ const Agent = ({
           <Button
             variant="outline"
             className="gap-2 px-6 py-3 text-base font-medium"
-            // onClick={handleCall}
+            onClick={handleCall}
           >
             <Phone className="w-4 h-4" />
             {callStatus === CallStatus.CONNECTING ? "Connecting..." : "Start Interview"}
@@ -194,7 +203,7 @@ const Agent = ({
           <Button
             variant="destructive"
             className="gap-2 px-6 py-3 text-base font-medium"
-            // onClick={handleDisconnect}
+            onClick={handleDisconnect}
           >
             <Phone className="w-4 h-4" />
             End Interview

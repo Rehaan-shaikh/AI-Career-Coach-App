@@ -6,6 +6,9 @@ import { getCurrentUser } from "@/actions/auth";
 export async function POST(request) {
   const { type, role, level, techstack, amount, userId } = await request.json();
 
+  console.log("POST /api/vapi/generate", type, role, level, techstack, amount, userId);
+  
+
   try {
     const { text: questions } = await generateText({
       model: google("gemini-2.0-flash-001"),
