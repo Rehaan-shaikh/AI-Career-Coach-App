@@ -10,13 +10,11 @@ const InterviewPage = async () => {
   return (
     <div className="space-y-8 px-6 py-4">
       <h1 className="text-4xl md:text-5xl font-bold gradient-title text-center">
-        Interview Generation
+        Start The Interview
       </h1>
       <Agent
       userName={user?.name}
       userId={user?.id}
-      // profileImage={user?.profileURL}
-      type="generate"
       />
     </div>
   );

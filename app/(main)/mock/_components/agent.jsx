@@ -19,44 +19,14 @@ const CallStatus = {
   FINISHED: "FINISHED",
 };
 
-const Agent = ({
-  // These props are here in the signature but will be overridden by hardcoded values below,
-  // reflecting your original JS code's behavior.
-  // If you later decide to truly pass these as props, you would remove the hardcoded lines.
-  // userName,
-  // userId,
-  // interviewId,
-  // feedbackId,
-  // type,
-  // questions,
-}) => {
-  // --- Keeping these hardcoded as per your original JS code's structure ---
-  const userName = "John Doe";
-  const userId = "12345";
-  const type = "generate"; // This will always make the Vapi call use the 'generate' path
-  // const interviewId = "67890"; // Commented out, but was present in your original JS structure
-  // const feedbackId = "abcde";   // Commented out, but was present in your original JS structure
-  // const questions = ["What is your greatest strength?", "How do you handle stress?"]; // Commented out
-  // ----------------------------------------------------------------------
-
-  console.log(userName, userId, type); // Keep this log for visibility
-
+const Agent = ({userName}) => {
+  
   const router = useRouter(); // This was commented out in your original JS, but is needed.
 
   const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
   const [messages, setMessages] = useState([]); // Array to store transcript messages
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastMessage, setLastMessage] = useState("");
-
-  // Placeholder values for variables your Vapi workflow expects.
-  // These are hardcoded *for now* to get the Vapi call to work
-  // with the `variableValues` requirement from your Vapi dashboard.
-  // You will need to replace these with dynamic values based on your app's needs.
-  const interviewRole = "Frontend Developer";
-  const interviewLevel = "Entry-level";
-  const interviewAmount = "75000";
-  const interviewTechstack = "JavaScript, React, CSS";
-
 
   // Effect hook for Vapi event listeners (call start, end, message, speech, error)
   useEffect(() => {
@@ -113,34 +83,16 @@ const Agent = ({
     };
   }, []); // Empty dependency array for listeners
 
+
   // Effect hook for updating last message and handling call finished state
   useEffect(() => {
     if (messages.length > 0) {
       setLastMessage(messages[messages.length - 1].content);
     }
-
-    // Feedback generation logic is commented out as per your request
-    /*
-    const handleGenerateFeedback = async (currentMessages) => {
-      // ... feedback logic here ...
-    };
-    */
-
     if (callStatus === CallStatus.FINISHED) {
-      if (type === "generate") { // `type` is hardcoded as 'generate' here
         router.push("/");
-      }
-      /*
-      // The `else` branch for feedback is commented out as requested.
-      else {
-        handleGenerateFeedback(messages);
-      }
-      */
     }
-    // Updated dependency array:
-    // `router` and `type` are included because they are used inside this effect.
-    // If you uncomment feedback, `interviewId`, `userId`, `feedbackId` would also need to be here.
-  }, [messages, callStatus, router, type]);
+  }, [messages, callStatus, router]);
 
 
   // Function to handle starting the Vapi call
@@ -148,69 +100,13 @@ const Agent = ({
     const vapiWebToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
     const vapiWorkflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
 
-    // Log the variables that will be used, including the hardcoded ones
-    console.log("Attempting to start Vapi call...");
-    console.log("VAPI Web Token (runtime read):", vapiWebToken);
-    console.log("VAPI Workflow ID (runtime read):", vapiWorkflowId);
-    console.log("Hardcoded User Name:", userName);
-    console.log("Hardcoded User ID:", userId);
-    console.log("Hardcoded Type:", type);
-    console.log("Vapi Metadata (sending):", {
-      username: userName,
-      userid: userId,
-      role: interviewRole,
-      level: interviewLevel,
-      amount: interviewAmount,
-      techstack: interviewTechstack,
-    });
-
-
-    // Basic validation to ensure keys and hardcoded values are present
-    if (!vapiWebToken || !vapiWorkflowId || !userName || !userId || !interviewRole || !interviewLevel || !interviewAmount || !interviewTechstack) {
-      console.error("Missing required data for Vapi call: Environment variables or hardcoded user/workflow metadata are incomplete.");
-      setCallStatus(CallStatus.INACTIVE);
-      return;
-    }
 
     setCallStatus(CallStatus.CONNECTING);
 
     try {
-      if (type === "generate") {
-        // This is the CRITICAL FIX:
-        // Using the TS code's `vapi.start(workflowId, { variableValues: { ... } })` signature
-        // to pass the required metadata from your Vapi workflow configuration.
-        await vapi.start(vapiWorkflowId, {
-          variableValues: {
-            username: userName, // Using the hardcoded userName
-            userid: userId,     // Using the hardcoded userId
-            // Include all other variables your Vapi workflow expects from its 'Referenced Variables'
-            role: interviewRole,
-            level: interviewLevel,
-            amount: interviewAmount,
-            techstack: interviewTechstack,
-          },
-        });
+        await vapi.start(vapiWorkflowId);
         console.log("Vapi.start() called successfully (awaiting server response)...");
-      }
-      // The `else` branch for other `type` values (e.g., custom interview types)
-      // remains commented out as it was in your original JS and per request.
-      /*
-      else {
-        let formattedQuestions = "";
-        if (questions) { // 'questions' would need to be passed as a prop if this path is active
-          formattedQuestions = questions
-            .map((question) => `- ${question}`)
-            .join("\n");
-        }
-        await vapi.start(interviewer, { // 'interviewer' constant would need to be imported
-          variableValues: {
-            questions: formattedQuestions,
-          },
-        });
-        console.warn("Vapi call for non-generate type is currently commented out.");
-      }
-      */
-    } catch (err) {
+    }catch (err) {
       console.error("Failed to start Vapi call caught in handleCall:", err);
       console.error("Detailed Vapi Error Object:", JSON.stringify(err, null, 2));
       setCallStatus(CallStatus.INACTIVE);

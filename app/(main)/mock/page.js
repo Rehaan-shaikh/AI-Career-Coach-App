@@ -2,27 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-// import {
-//   getInterviewsByUserId,
-//   getLatestInterviews,
-// } from "@/lib/actions/general.action";
-import InterviewCard from "./_components/interview-card";
-import { getCurrentUser } from "@/actions/auth";
-import { dummyInterviews } from "@/lib/data";
-
 export default async function MockInterviewHomePage() {
-  const user = await getCurrentUser();
-
-  //   const [userInterviews, allInterview] = await Promise.all([
-  //     getInterviewsByUserId(user?.id),
-  //     getLatestInterviews({ userId: user?.id }),
-  //   ]);
-
-  const userInterviews = dummyInterviews;
-  const allInterview = dummyInterviews;
-
-  const hasPastInterviews = userInterviews?.length > 0;
-  const hasUpcomingInterviews = allInterview?.length > 0;
 
   return (
     <div className="container mx-auto py-6 space-y-10">
@@ -60,60 +40,6 @@ export default async function MockInterviewHomePage() {
               priority
             />
           </div>
-        </div>
-      </section>
-
-      {/* Past Interviews */}
-      <section className="mx-2 rounded-xl bg-[#111111] border border-border shadow-md p-6 space-y-4">
-        <h2 className="text-3xl md:text-4xl font-bold gradient-title text-white">
-          Your Past Interviews
-        </h2>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {hasPastInterviews ? (
-            userInterviews.map((interview) => (
-              <InterviewCard
-                key={interview.id}
-                userId={user?.id}
-                interviewId={interview.id}
-                role={interview.role}
-                type={interview.type}
-                techstack={interview.techstack}
-                createdAt={interview.createdAt}
-              />
-            ))
-          ) : (
-            <p className="text-sm text-gray-400">
-              You haven&apos;t taken any interviews yet.
-            </p>
-          )}
-        </div>
-      </section>
-
-      {/* Suggested Interviews */}
-      <section className="mx-2 rounded-xl bg-[#111111] border border-border shadow-md p-6 space-y-4">
-        <h2 className="text-3xl md:text-4xl font-bold gradient-title text-white">
-          Suggested Practice Interviews
-        </h2>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {hasUpcomingInterviews ? (
-            allInterview.map((interview) => (
-              <InterviewCard
-                key={interview.id}
-                userId={user?.id}
-                interviewId={interview.id}
-                role={interview.role}
-                type={interview.type}
-                techstack={interview.techstack}
-                createdAt={interview.createdAt}
-              />
-            ))
-          ) : (
-            <p className="text-sm text-gray-400">
-              There are no interviews available at the moment.
-            </p>
-          )}
         </div>
       </section>
     </div>
