@@ -28,7 +28,7 @@ import { deleteCoverLetter } from "@/actions/cover-letter";
 export default function CoverLetterList({ coverLetters }) {
   const router = useRouter();
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id) => {  //in client component we can use async function for server action but cant make the component async unlike server component
     try {
       await deleteCoverLetter(id);
       toast.success("Cover letter deleted successfully!");

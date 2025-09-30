@@ -95,6 +95,7 @@ const OnboardingForm = ({ industries }) => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/*handleSubmit is a wrapper function provided by useForm that returns a function to handle form submission */}
             <div className="space-y-2">
               <Label htmlFor="industry">Industry</Label>
               <Select
@@ -232,8 +233,8 @@ export default OnboardingForm;
 
 // | Scenario                          | Use                                |
 // | --------------------------------- | ---------------------------------- |
-// | Just returning JSX                | `=> (...)` (implicit) ✅            |
-// | Need logic, `if`, variables, etc. | `=> { return (...) }` (explicit) ✅ |
+// | Just returning JSX                | `=> (...)` (implicit) ✅               |
+// | Need js logic, `if`, variables, etc. | `=> { return (...) }` (explicit) ✅ |
 
 
 

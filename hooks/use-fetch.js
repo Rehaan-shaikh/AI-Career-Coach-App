@@ -1,5 +1,5 @@
 //  it is not mandatory to put custom hooks in a hooks name folder  or file name useXyz.js but is strongly recommended.
-// but it is mandatory to start a custom hook with use
+// but it is mandatory to start a custom hook;s function name  with use
 import { useState } from "react";
 import { toast } from "sonner";
 
