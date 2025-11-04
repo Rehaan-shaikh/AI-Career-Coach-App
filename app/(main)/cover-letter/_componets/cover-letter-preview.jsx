@@ -6,6 +6,7 @@ const CoverLetterPreview = ({letter}) => {
   return (
     <div>
       <MDEditor value={letter.content} height={700} preview='preview'/>
+      {/* preview="preview" → means(not editable). */}
     </div>
   )
 }

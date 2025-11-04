@@ -25,7 +25,7 @@ model User {
 
   // Relations
   assessments     Assessment[]
-  resume          Resume?
+  resume          Resume?  //one to one relationship
   coverLetter     CoverLetter[]
 }
 

@@ -32,7 +32,7 @@ export default function CoverLetterList({ coverLetters }) {
     try {
       await deleteCoverLetter(id);
       toast.success("Cover letter deleted successfully!");
-      router.refresh();
+      // router.refresh();
     } catch (error) {
       toast.error(error.message || "Failed to delete cover letter");
     }

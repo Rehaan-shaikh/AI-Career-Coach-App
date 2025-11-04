@@ -1,5 +1,5 @@
 "use client";
-
+//cause of recharts , the comp is client
 import React from "react";
 import {
   BarChart,
@@ -30,7 +30,7 @@ import { Progress } from "@/components/ui/progress";
 
 const DashboardView = ({ insights }) => {
   // Transform salary data for the chart
-  // console.log(insights);
+  console.log(insights);
   
   const salaryData = insights.salaryRanges.map((range) => ({
     name: range.role,

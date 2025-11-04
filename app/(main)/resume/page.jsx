@@ -4,7 +4,7 @@ import ResumeBuilder from "./_components/resume-builder";
 export default async function ResumePage() {
   const resume = await getResume();
   // if(resume.length){
-  //   return <div  className="text-center py-10 text-muted"> ypu dont have reusme to render</div>
+  //   return <div  className="text-center py-10 text-muted"> you dont have reusme to render</div>
   // } 
 
   // if (!resume) {

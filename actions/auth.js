@@ -85,8 +85,8 @@ export async function loginUser(_, formData) {
     return {
       success: false,
       errors: {
-        email: "Invalid email or password",
-        password: "Invalid email or password",
+        email: "Email Not Found",
+        // password: "Invalid email or password",
       },
     };
   }
@@ -96,8 +96,8 @@ export async function loginUser(_, formData) {
     return {
       success: false,
       errors: {
-        email: "Invalid email or password",
-        password: "Invalid email or password",
+        // email: "Invalid email or password",
+        password: "Invalid password",
       },
     };
   }
@@ -142,7 +142,7 @@ export async function getCurrentUser() {
 
     return user || null;
   } catch (err) {
-    console.error("Invalid token:", err.message);
+    console.log("Invalid token:", err.message);
     return null;
   }
 }

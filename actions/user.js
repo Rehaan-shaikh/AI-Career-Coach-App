@@ -8,7 +8,8 @@ import { getCurrentUser } from "./auth";
 // ✅ Update User with IndustryInsight
 export async function updateUser(data) {
   const user = await getCurrentUser(); 
-  if (!user) throw new Error("Unauthorized");
+  if (!user)
+  { res.json ({ error: "Unauthorized" })}
 
   try {
     const result = await db.$transaction(
@@ -41,7 +42,7 @@ export async function updateUser(data) {
 
         return { updatedUser, industryInsight };
       },
-      { timeout: 10000 }
+      // { timeout: 10000 }
     );
 
     revalidatePath("/");

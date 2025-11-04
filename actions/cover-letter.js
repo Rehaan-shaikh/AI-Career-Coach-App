@@ -3,9 +3,10 @@
 import { db } from "@/lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getCurrentUser } from "./auth";
+import { revalidatePath } from "next/cache";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 export async function generateCoverLetter(data) {
   const user = await getCurrentUser(); // 🔁 replaced auth
@@ -43,6 +44,7 @@ export async function generateCoverLetter(data) {
     
     Format the letter in markdown.
   `;
+  // We are generating the content in Market format because the MD editor only accepts MD format
 
   try {
     const result = await model.generateContent(prompt);
@@ -90,6 +92,7 @@ export async function deleteCoverLetter(id) {
       userId: user.id
     }
   });
+  revalidatePath("/cover-letter");
   return deleted;
 }
 
