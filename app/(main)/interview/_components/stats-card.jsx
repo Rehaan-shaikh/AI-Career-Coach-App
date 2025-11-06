@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const StatsCards = (assessments) => {
   // console.log(assessments.assessments);
   const allAssesments = assessments.assessments;
-  // console.log(allAssesments);
+  console.log(allAssesments);
 
   let latestScore = 0;
 

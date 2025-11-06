@@ -4,11 +4,14 @@ import { db } from "@/lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getCurrentUser } from "./auth"; // 👈 import your custom user helper
 
+//initialize the Google Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+//selecting the model
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 export async function generateAIInsights(industry) {
-  const prompt = `
+  //dynamic prompt creation
+  const prompt = ` 
     Analyze the current state of the ${industry} industry and provide insights in ONLY the following JSON format without any additional notes or explanations:
     {
       "salaryRanges": [
@@ -27,7 +30,8 @@ export async function generateAIInsights(industry) {
     Growth rate should be a percentage.
     Include at least 5 skills and trends.
   `;
-
+  
+  //call the model with the prompt using generateContent function
   const result = await model.generateContent(prompt);
   const response = result.response;
   const text = response.text();

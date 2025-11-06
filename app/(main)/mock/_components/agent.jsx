@@ -8,9 +8,8 @@ import { Phone } from "lucide-react";
 import { useEffect, useState } from "react";
 import { vapi } from "@/app/lib/vapi.sdk";
 
-// import { cn } from "@/lib/utils"; // If you used 'cn' in your original TSX for styling, consider adding it back
-// import { interviewer } from "@/constants"; // Uncomment if you enable the 'else' branch in handleCall
-// import { createFeedback } from "@/lib/actions/general.action"; // Keep commented as per request
+//vapi is your Voice AI SDK instance (imported from @/app/lib/vapi.sdk).
+// It connects your React app to the Vapi voice AI backend, which can start calls, stream audio, and send events during a live call
 
 const CallStatus = {
   INACTIVE: "INACTIVE",
@@ -21,7 +20,7 @@ const CallStatus = {
 
 const Agent = ({userName}) => {
   
-  const router = useRouter(); // This was commented out in your original JS, but is needed.
+  const router = useRouter(); 
 
   const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
   const [messages, setMessages] = useState([]); // Array to store transcript messages
@@ -64,10 +63,15 @@ const Agent = ({userName}) => {
       setCallStatus(CallStatus.INACTIVE); // Revert status on error
     };
 
-    // Attach Vapi event listeners
-    vapi.on("call-start", onCallStart);
+    // Attach Vapi event listeners using vapi.on
+    // Syntax : vapi.on(eventName, callback)
+    // ➡️ means “when this event happens, run this callback function.”
+    // just like : button.addEventListener("click", handleClick);
+    //so vapi.on attaches event listeners to the callbacks defined above
+    // (and this "call-start" and all are bydefault events provided by vapi sdk)
+    vapi.on("call-start", onCallStart); 
     vapi.on("call-end", onCallEnd);
-    vapi.on("message", onMessage);
+    vapi.on("message", onMessage);  //message handlers are used to process incoming messages during the call
     vapi.on("speech-start", onSpeechStart);
     vapi.on("speech-end", onSpeechEnd);
     vapi.on("error", onError);
@@ -90,7 +94,7 @@ const Agent = ({userName}) => {
       setLastMessage(messages[messages.length - 1].content);
     }
     if (callStatus === CallStatus.FINISHED) {
-        router.push("/");
+        router.push("/mock");
     }
   }, [messages, callStatus, router]);
 
@@ -104,7 +108,9 @@ const Agent = ({userName}) => {
     setCallStatus(CallStatus.CONNECTING);
 
     try {
+        //starting vapi call with your workflow id , in that workflow i have set the vapi commands which fllows the interview process
         await vapi.start(vapiWorkflowId);
+        setCallStatus(CallStatus.ACTIVE)
         console.log("Vapi.start() called successfully (awaiting server response)...");
     }catch (err) {
       console.error("Failed to start Vapi call caught in handleCall:", err);
@@ -152,6 +158,9 @@ const Agent = ({userName}) => {
                 .slice(0, 2)
                 .toUpperCase()}
             </AvatarFallback>
+            {isSpeaking && (
+              <span className="absolute bottom-0 right-0 w-4.5 h-4.5 bg-green-500 rounded-full animate-ping" />
+            )}
           </Avatar>
           <h3 className="text-white text-3xl font-semibold tracking-tight">{userName}</h3>
           <p className="text-base text-muted-foreground mt-1">You</p>

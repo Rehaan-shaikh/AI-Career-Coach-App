@@ -38,7 +38,9 @@ export default function Quiz() {
 
   useEffect(() => {
     if (quizData) {
+      console.log(quizData);
       setAnswers(new Array(quizData.length).fill(null));
+      //creating an array of nulls with length equal to number of questions in quizData
     }
   }, [quizData]);
 

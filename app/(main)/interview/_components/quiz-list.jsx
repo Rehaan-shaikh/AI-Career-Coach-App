@@ -77,14 +77,14 @@ export default function QuizList({ assessments }) {
       </Card>
 
       <Dialog open={!!selectedQuiz} onOpenChange={() => setSelectedQuiz(null)}>
+        {/* !!-> Convert selectedQuiz to boolean: true if it exists, false if null/undefined  */}
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle></DialogTitle>
           </DialogHeader>
           <QuizResult
             result={selectedQuiz}
-            hideStartNew
-            // onStartNew={() => router.push("/interview/test")}
+            hideStartNew ={true}  //hides start new btn when showing result in dialogue
           />
         </DialogContent>
       </Dialog>

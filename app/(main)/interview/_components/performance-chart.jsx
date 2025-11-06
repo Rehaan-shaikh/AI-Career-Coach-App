@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 
 
 const PerformanceChart = ({assessments}) => {
-  console.log(assessments);
+  // console.log(assessments);
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {

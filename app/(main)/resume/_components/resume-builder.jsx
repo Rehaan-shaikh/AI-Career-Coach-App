@@ -88,6 +88,7 @@ export default function ResumeBuilder({ initialContent }) {
 
 
 
+  //Generating markdown content
   const getContactMarkdown = () => {
     const { contactInfo } = formValues;
     const parts = [];
@@ -102,6 +103,7 @@ export default function ResumeBuilder({ initialContent }) {
       : "";
   };
 
+  //Generating markdown content
  function entriesToMarkdown(entries, type) {
   // console.log(entries);  //entries is an arrat of obj with 1 length only so we can use map top render the obj elements
   
@@ -137,54 +139,54 @@ export default function ResumeBuilder({ initialContent }) {
   };
 
   //with help of gpt , cause the previous html2pdf was throwing errors
-const generatePDF = async () => {
-  setIsGenerating(true);
+  const generatePDF = async () => {
+    setIsGenerating(true);
 
-  try {
-    // Open a blank window based on your HTML template
-    const printWindow = window.open("/resume-print.html", "_blank");
+    try {
+      // Open a blank window based on your HTML template
+      const printWindow = window.open("/resume-print.html", "_blank");
 
-    if (!printWindow) throw new Error("Unable to open print window");
+      if (!printWindow) throw new Error("Unable to open print window");
 
-    // Wait until the window is ready
-    await new Promise((res) => {
-      printWindow.onload = res;
-    });
+      // Wait until the window is ready
+      await new Promise((res) => {
+        printWindow.onload = res;
+      });
 
-    // Render your markdown into HTML
-    const html = marked.parse(previewContent || "");
+      // Render your markdown into HTML
+      const html = marked.parse(previewContent || "");
 
-    // Inject the content
-    printWindow.document.getElementById("resume-html").innerHTML = html;
+      // Inject the content
+      printWindow.document.getElementById("resume-html").innerHTML = html;
 
-    // Wait a bit to ensure DOM is fully painted
-    await new Promise((res) => setTimeout(res, 500));
+      // Wait a bit to ensure DOM is fully painted
+      await new Promise((res) => setTimeout(res, 500));
 
-    // Use html2canvas on the new window's document
-    const element = printWindow.document.body;
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    });
+      // Use html2canvas on the new window's document
+      const element = printWindow.document.body;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
 
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("resume.pdf");
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("resume.pdf");
 
-    printWindow.close();
-  } catch (error) {
-    console.error("PDF generation error:", error);
-  } finally {
-    setIsGenerating(false);
-  }
-};
+      printWindow.close();
+    } catch (error) {
+      console.error("PDF generation error:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const onSubmit = async () => {
     try {
@@ -247,7 +249,7 @@ const generatePDF = async () => {
         <TabsList>
           <TabsTrigger value="edit">Form</TabsTrigger>
           <TabsTrigger value="preview">Markdown</TabsTrigger>
-        </TabsList>
+        </TabsList> 
         <TabsContent value="edit">
           <form
             // onSubmit={handleSubmit(onSubmit)} //cause we are adding data on save btn
@@ -371,7 +373,7 @@ const generatePDF = async () => {
                   // field.onChange – a function to update the field when it changes
                   <EntryForm
                     type="Experience"
-                    entries={field.value} //	The current value of the experience field (an array of entries) passed into EntryForm
+                    entries={field.value} //	The current values of the experience field (an array of obj holding entries) passed into EntryForm
                     onChange={field.onChange} //	The function that updates the experience field in the form state when something changes
                   />
                 )}
@@ -407,6 +409,8 @@ const generatePDF = async () => {
             {/* Projects */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Projects</h3>
+              {/*Controller registers projects field internally, it’s already part of React Hook Form’s form state */}
+              {/* so that it can be accesed later directly via watch() or other ways */}
               <Controller
                 name="projects"
                 control={control}

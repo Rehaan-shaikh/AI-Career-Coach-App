@@ -66,10 +66,10 @@ export function EntryForm({ type, entries, onChange }) {
     setIsAdding(false);
   });
 
-  const handleDelete = () => {
+  const handleDelete = (indexToDelete) => {
     // console.log(entries , "from delete");
     
-    const newEntries = entries.filter((_, i) => i !== 0);
+    const newEntries = entries.filter((_, i) => i !== indexToDelete);
     console.log(newEntries);
     
     onChange(newEntries);
@@ -107,36 +107,47 @@ export function EntryForm({ type, entries, onChange }) {
     });
   };
 
-  const entry = entries[0];  //cause entries is the array of obj with having only 1 elem ata time
+  const entriiies = entries;  //cause entries is the array of obj with having 1 or mult obj at a time
+  console.log(entriiies);
+  //For example:
+  // 0: {title: 'aaaaaaaaaaa', organization: 'aaaaaaaa', startDate: 'Feb 2025', endDate: '', description: 'aaaaaaaaaaaaa', …}
+  // 1: {title: 'sssssss', organization: 'ssssss', startDate: 'Mar 2025', endDate: 'Apr 2025', description: 'ssssssss', …}
+  //means an exp / project entry can have mult  obj in it
+
   return (
     <div className="space-y-4">
-      {entry && (
+      {entriiies && (
         <div className="space-y-4">
-          <Card>
+          {
+            entriiies.map((entryItem, index) =>(
+          <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                {entry.title} @ {entry.organization}
+                {entryItem.title} @ {entryItem.organization}
               </CardTitle>
               <Button
                 variant="outline"
                 size="icon"
                 type="button"
-                onClick={() => handleDelete()}
+                onClick={() => handleDelete(index)}   // ✅ delete specific entry by index
               >
                 <X className="h-4 w-4" />
               </Button>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                {entry.current
-                  ? `${entry.startDate} - Present`
-                  : `${entry.startDate} - ${entry.endDate}`}
+                {entryItem.current
+                  ? `${entryItem.startDate} - Present`
+                  : `${entryItem.startDate} - ${entryItem.endDate}`}
               </p>
               <p className="mt-2 text-sm whitespace-pre-wrap">
-                {entry.description}
+                {entryItem.description}
               </p>
             </CardContent>
-          </Card>
+          </Card>              
+            ))
+          }
+
       </div>
       )}
 
@@ -262,7 +273,7 @@ export function EntryForm({ type, entries, onChange }) {
 
             <Button type="button" onClick={handleAdd}>  
               {/* we are not using <Button onClick={handleValidation} /> cause handleValidation is fun from react-hook-form and returns a fun */}
-              {/* logic must be writtenn here only like: <Button onClick={handleValidation((data) => // logic ))} /> */}
+              {/*or logic must be writtenn here only like: <Button onClick={handleValidation((data) => // logic ))} /> */}
               {/* type should be button , to prevent it from submitting */}
               <PlusCircle className="h-4 w-4 mr-2" />
               Add Entry
@@ -284,8 +295,6 @@ export function EntryForm({ type, entries, onChange }) {
     </div>
   );
 }
-
-
 
 // | Syntax                   | What it does                              | When to use                                  |
 // | ------------------------ | ----------------------------------------- | -------------------------------------------- |

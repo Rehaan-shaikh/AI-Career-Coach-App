@@ -7,7 +7,8 @@ import { Progress } from "@/components/ui/progress";
 
 export default function QuizResult({
   result,
-  hideStartNew = false,   // cause we are using same component for showing result in dialogue and this handles it yo show onStartr btn or not
+  hideStartNew = false,   //false by default unless send true from parent comp
+  // cause we are using same component for showing result in dialogue and this handles it yo show onStartr btn or not
   onStartNew,
 }) {
   if (!result) return null;
